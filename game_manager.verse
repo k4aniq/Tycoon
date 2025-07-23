@@ -16,8 +16,6 @@ player_data_update< constructor>(OldStat:player_data)< transacts> := player_data
     SavedButtonStruct := OldStat.SavedButtonStruct
 }
 
- git config --global user.email "you@example.com"
-  git config --global user.name "Your Name"
 
 var Data:weak_map(player, player_data) = map{}
 
