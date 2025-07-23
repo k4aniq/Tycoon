@@ -7,15 +7,18 @@ using { /Verse.org/Simulation/Tags }
 
 player_data := class< final>< persistable>{
     Cash : int = 0
+    Gems : int = 0
+    RebirthItems : int = 0
 
     SavedButtonStruct : []int = array{}
 }
 
 player_data_update< constructor>(OldStat:player_data)< transacts> := player_data {
     Cash := OldStat.Cash
+    Gems := OldStat.Gems
+    RebirthItems := OldStat.RebirthItems
     SavedButtonStruct := OldStat.SavedButtonStruct
 }
-
 
 var Data:weak_map(player, player_data) = map{}
 
@@ -73,7 +76,9 @@ game_manager := class(creative_device):
     
                     set Data[Player] = player_data{
                         player_data_update< constructor>(OldData)
-                        Cash := 0 
+                        Cash := 0
+                        Gems := 0
+                        RebirthItems := 0 
                     }
                 then:
             }     
@@ -87,6 +92,14 @@ game_manager := class(creative_device):
 
     GetCurrentCash< public>(Player : player)<decides><transacts> : int = {
         return Data[Player].Cash
+    }
+
+    GetCurrentGems< public>(Player : player)<decides><transacts> : int = {
+        return Data[Player].Gems
+    }
+
+    GetCurrentRebirthItems< public>(Player : player)<decides><transacts> : int = {
+        return Data[Player].RebirthItems
     }
 
     GetPlayerTycoonClass< public>(Agent : agent)<decides><transacts> : Player_Tycoon_Class = {
@@ -119,6 +132,58 @@ game_manager := class(creative_device):
         }
     }
 
+    AddToGems< public>(Player : player, Amount : int) : void = {
+        if (PlayerData := Data[Player]) {
+            if:
+                OldData := Data[Player]
+
+                set Data[Player] = player_data{
+                    player_data_update< constructor>(OldData)
+                    Gems := OldData.Gems + Amount 
+                }
+            then:
+        }   
+    }
+
+    RemoveFromGems< public>(Player : player, Amount : int) : void = {
+        if (PlayerData := Data[Player]) {
+            if:
+                OldData := Data[Player]
+
+                set Data[Player] = player_data{
+                    player_data_update< constructor>(OldData)
+                    Gems := OldData.Gems - Amount 
+                }
+            then:
+        }
+    }
+
+    AddToRebirthItems< public>(Player : player, Amount : int) : void = {
+        if (PlayerData := Data[Player]) {
+            if:
+                OldData := Data[Player]
+
+                set Data[Player] = player_data{
+                    player_data_update< constructor>(OldData)
+                    RebirthItems := OldData.RebirthItems + Amount 
+                }
+            then:
+        }   
+    }
+
+    RemoveFromRebirthItems< public>(Player : player, Amount : int) : void = {
+        if (PlayerData := Data[Player]) {
+            if:
+                OldData := Data[Player]
+
+                set Data[Player] = player_data{
+                    player_data_update< constructor>(OldData)
+                    RebirthItems := OldData.RebirthItems - Amount 
+                }
+            then:
+        }
+    }
+
     AddToTycoonArray< public>(Player : player, Amount : int) : void = {
         if (PlayerData := Data[Player]) {
             if:
@@ -138,6 +203,26 @@ game_manager := class(creative_device):
 
     GetCurrentTycoonArray< public>(Player : player)< decides>< transacts> : []int = {
         return Data[Player].SavedButtonStruct
+    }
+
+    # Rebirth function - resets cash but gives rebirth items based on current cash
+    PerformRebirth< public>(Player : player) : void = {
+        if (PlayerData := Data[Player]) {
+            CurrentCash := PlayerData.Cash
+            RebirthItemsToGrant := CurrentCash / 1000000  # 1 rebirth item per million cash
+            
+            if:
+                OldData := Data[Player]
+
+                set Data[Player] = player_data{
+                    player_data_update< constructor>(OldData)
+                    Cash := 0
+                    RebirthItems := OldData.RebirthItems + RebirthItemsToGrant
+                    SavedButtonStruct := array{}  # Reset tycoon progress
+                }
+            then:
+                Print("Player performed rebirth and gained {RebirthItemsToGrant} rebirth items")
+        }   
     }
 
 

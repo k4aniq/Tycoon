@@ -9,7 +9,7 @@ using { /Fortnite.com/Devices/CreativeAnimation/InterpolationTypes }
 
 # A Verse-authored creative device that can be placed in a level
 Handler1 := class() {
-    Device : Tycoon_Manager   <#YOU MUST CHANGE "main" TO YOUR VERSE DEVICE NAME#>
+    Device : Tycoon_Manager1   <#YOU MUST CHANGE "main" TO YOUR VERSE DEVICE NAME#>
     Parameter1 : string  <#Change "int" to your parameter type, ex: float, string#>
 
     HandlerFunction(Agent : agent) : void = {
@@ -29,6 +29,8 @@ DropperPropClass := class < concrete> {
     var Animateable : logic = true
 
     @editable DropperCashIncrease : int = 1
+    @editable DropperGemsIncrease : int = 0
+    @editable DropperRebirthItemsIncrease : int = 0
 
     @editable DropperCloneTime : float = 1.0
 
@@ -43,6 +45,8 @@ AllButtons := class < concrete>{
     @editable ButtonVolume : volume_device = volume_device{}
     
     @editable ButtonPrice : int = 0
+    @editable ButtonGemPrice : int = 0  
+    @editable ButtonRebirthItemPrice : int = 0
     
     @editable ButtonsToUnlock : []creative_prop = array{}
 
@@ -53,7 +57,7 @@ AllButtons := class < concrete>{
     @editable DropperOptional : DropperPropClass = DropperPropClass{}
 }
 
-Tycoon_Manager := class(creative_device):
+Tycoon_Manager1 := class(creative_device):
 
     var OwnerOfTycoon : ?agent = false
 
@@ -158,22 +162,26 @@ Tycoon_Manager := class(creative_device):
                 ButtonClicked := Item.ButtonProp
                 ButtonVolume := Item.ButtonVolume
                 Price := Item.ButtonPrice
+                GemPrice := Item.ButtonGemPrice
+                RebirthItemPrice := Item.ButtonRebirthItemPrice
                 Props := Item.PropsToUnlock
                 Buttons := Item.ButtonsToUnlock
 
-                if (PlayerCash := GameManager.GetCurrentCash[Player]) {
+                if (PlayerCash := GameManager.GetCurrentCash[Player], PlayerGems := GameManager.GetCurrentGems[Player], PlayerRebirthItems := GameManager.GetCurrentRebirthItems[Player]) {
                     Print("We good with data")
-                    if (PlayerCash >= Price, Item.Purchased = false) {
+                    if (PlayerCash >= Price, PlayerGems >= GemPrice, PlayerRebirthItems >= RebirthItemPrice, Item.Purchased = false) {
                         set Item.Purchased = true
 
                         ButtonClicked.Hide()
                         GameManager.AddToTycoonArray(Player, Key)
 
                         GameManager.RemoveFromCash(Player, Price)
+                        GameManager.RemoveFromGems(Player, GemPrice)
+                        GameManager.RemoveFromRebirthItems(Player, RebirthItemPrice)
 
-                        if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player]) {
+                        if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player], Gems := GameManager.GetCurrentGems[Player], RebirthItems := GameManager.GetCurrentRebirthItems[Player]) {
                             Print("Update Text")
-                            PTC.MainPlayerUIClass.UpdateCash(Player, Cash)
+                            PTC.MainPlayerUIClass.UpdateAllCurrencies(Player, Cash, Gems, RebirthItems)
                         }
 
                         Print("{NameOfButton}, button should go underground")
@@ -354,11 +362,13 @@ Tycoon_Manager := class(creative_device):
             GameManager : game_manager = game_manager{}
 
             GameManager.AddToCash(Player, Item.DropperOptional.DropperCashIncrease)
+            GameManager.AddToGems(Player, Item.DropperOptional.DropperGemsIncrease)
+            GameManager.AddToRebirthItems(Player, Item.DropperOptional.DropperRebirthItemsIncrease)
     
             if (PlayerCash := GameManager.GetCurrentCash[Player]) {Print("{PlayerCash}")}
 
-            if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player]) {
-                PTC.MainPlayerUIClass.UpdateCash(Player, Cash)
+            if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player], Gems := GameManager.GetCurrentGems[Player], RebirthItems := GameManager.GetCurrentRebirthItems[Player]) {
+                PTC.MainPlayerUIClass.UpdateAllCurrencies(Player, Cash, Gems, RebirthItems)
             }
 
             Sleep(Item.DropperOptional.DropperCloneTime + (Item.DropperOptional.DropperCloneTime + 2.0))
@@ -381,9 +391,9 @@ Tycoon_Manager := class(creative_device):
     
                 if (PlayerCash := GameManager.GetCurrentCash[Player]) {Print("{PlayerCash}")}
 
-                if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player]) {
+                if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player], Gems := GameManager.GetCurrentGems[Player], RebirthItems := GameManager.GetCurrentRebirthItems[Player]) {
                     Print("Update Text")
-                    PTC.MainPlayerUIClass.UpdateCash(Player, Cash)
+                    PTC.MainPlayerUIClass.UpdateAllCurrencies(Player, Cash, Gems, RebirthItems)
                 }
             }
         }
@@ -452,6 +462,8 @@ Tycoon_Manager := class(creative_device):
                     ButtonClicked := Item.ButtonProp
                     ButtonVolume := Item.ButtonVolume
                     Price := Item.ButtonPrice
+                    GemPrice := Item.ButtonGemPrice
+                    RebirthItemPrice := Item.ButtonRebirthItemPrice
                     Props := Item.PropsToUnlock
                     Buttons := Item.ButtonsToUnlock
     
@@ -461,8 +473,8 @@ Tycoon_Manager := class(creative_device):
     
                             ButtonClicked.Hide()
 
-                            if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player]) {
-                                PTC.MainPlayerUIClass.UpdateCash(Player, Cash)
+                            if (PTC := GameManager.GetPlayerTycoonClass[Agent], Cash := GameManager.GetCurrentCash[Player], Gems := GameManager.GetCurrentGems[Player], RebirthItems := GameManager.GetCurrentRebirthItems[Player]) {
+                                PTC.MainPlayerUIClass.UpdateAllCurrencies(Player, Cash, Gems, RebirthItems)
                             }
     
                             CurrentVector3ButtonPos := ButtonClicked.GetTransform().Translation

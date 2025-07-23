@@ -18,7 +18,9 @@ Player_Tycoon_Class := class {
 
 
 Player_Tycoon_Main_UI := class {
-    var AmountOfCashImage : texture = VerseUIImages.MoneyCurrencyAmount
+    var AmountOfCashImage : texture = UiImages.MoneyCurrencyAmount
+    var AmountOfGemsImage : texture = UiImages.MoneyCurrencyAmount
+    var AmountOfRebirthItemsImage : texture = UiImages.MoneyCurrencyAmount
 
     StringToMessage< localizes>(value:string) : message = "{value}"
 
@@ -26,9 +28,17 @@ Player_Tycoon_Main_UI := class {
         DefaultTextColor := MakeColorFromHex("#FFFFFF")
     }
 
+    var AmountOfGems : text_block = text_block {
+        DefaultTextColor := MakeColorFromHex("#00FFFF")
+    }
+
+    var AmountOfRebirthItems : text_block = text_block {
+        DefaultTextColor := MakeColorFromHex("#FF00FF")
+    }
+
     Init(Player : player) : void = {
         if (PlayerUI := GetPlayerUI[Player]) {
-            PlayerUI.AddWidget(AddCashCurrencyUI())
+            PlayerUI.AddWidget(AddAllCurrencyUI())
         }
     }
 
@@ -36,6 +46,24 @@ Player_Tycoon_Main_UI := class {
         if (PlayerUI := GetPlayerUI[Player]) {
             AmountOfCash.SetText(StringToMessage(AbbreviateNumber((Cash) * 1.0)))
         }
+    }
+
+    UpdateGems(Player : player, Gems : int) : void = {
+        if (PlayerUI := GetPlayerUI[Player]) {
+            AmountOfGems.SetText(StringToMessage(AbbreviateNumber((Gems) * 1.0)))
+        }
+    }
+
+    UpdateRebirthItems(Player : player, RebirthItems : int) : void = {
+        if (PlayerUI := GetPlayerUI[Player]) {
+            AmountOfRebirthItems.SetText(StringToMessage(ToString(RebirthItems)))
+        }
+    }
+
+    UpdateAllCurrencies(Player : player, Cash : int, Gems : int, RebirthItems : int) : void = {
+        UpdateCash(Player, Cash)
+        UpdateGems(Player, Gems)  
+        UpdateRebirthItems(Player, RebirthItems)
     }
 
     AbbreviateNumber(value:float) : string = {
@@ -61,9 +89,10 @@ Player_Tycoon_Main_UI := class {
         return Str
 
 
-    AddCashCurrencyUI() : canvas = {
+    AddAllCurrencyUI() : canvas = {
         NewCanvas := canvas{
             Slots := array {
+                # Cash UI
                 canvas_slot {
                     Anchors := anchors{Minimum := vector2{X := 0.0, Y := 0.5}, Maximum := vector2{X := 0.0, Y := 0.5}}
                     Offsets := margin{Left := 219.165, Top := 1.875, Right := 502.33, Bottom := 300.832}
@@ -80,6 +109,42 @@ Player_Tycoon_Main_UI := class {
                     SizeToContent := true
                     ZOrder := 1
                     Widget := AmountOfCash
+                }
+                # Gems UI
+                canvas_slot {
+                    Anchors := anchors{Minimum := vector2{X := 0.0, Y := 0.5}, Maximum := vector2{X := 0.0, Y := 0.5}}
+                    Offsets := margin{Left := 219.165, Top := 70.0, Right := 502.33, Bottom := 368.832}
+                    Alignment := vector2{X := 0.5, Y := 0.5}
+                    SizeToContent := false
+                    ZOrder := 0
+                    Widget := texture_block:
+                        DefaultImage := AmountOfGemsImage
+                }
+                canvas_slot {
+                    Anchors := anchors{Minimum := vector2{X := 0.0, Y := 0.5}, Maximum := vector2{X := 0.0, Y := 0.5}}
+                    Offsets := margin{Left := 216.0, Top := 51.46, Right := 169.50, Bottom := 109.0}
+                    Alignment := vector2{X := 0.0, Y := 0.0}
+                    SizeToContent := true
+                    ZOrder := 1
+                    Widget := AmountOfGems
+                }
+                # Rebirth Items UI
+                canvas_slot {
+                    Anchors := anchors{Minimum := vector2{X := 0.0, Y := 0.5}, Maximum := vector2{X := 0.0, Y := 0.5}}
+                    Offsets := margin{Left := 219.165, Top := 138.0, Right := 502.33, Bottom := 436.832}
+                    Alignment := vector2{X := 0.5, Y := 0.5}
+                    SizeToContent := false
+                    ZOrder := 0
+                    Widget := texture_block:
+                        DefaultImage := AmountOfRebirthItemsImage
+                }
+                canvas_slot {
+                    Anchors := anchors{Minimum := vector2{X := 0.0, Y := 0.5}, Maximum := vector2{X := 0.0, Y := 0.5}}
+                    Offsets := margin{Left := 216.0, Top := 119.46, Right := 169.50, Bottom := 177.0}
+                    Alignment := vector2{X := 0.0, Y := 0.0}
+                    SizeToContent := true
+                    ZOrder := 1
+                    Widget := AmountOfRebirthItems
                 }      
             }
         }
