@@ -18,9 +18,9 @@ Player_Tycoon_Class := class {
 
 
 Player_Tycoon_Main_UI := class {
-    var AmountOfCashImage : texture = UiImages.MoneyCurrencyAmount
-    var AmountOfGemsImage : texture = UiImages.MoneyCurrencyAmount
-    var AmountOfRebirthItemsImage : texture = UiImages.MoneyCurrencyAmount
+    var AmountOfCashImage : texture = VerseUIImages.MoneyCurrencyAmount
+    var AmountOfGemsImage : texture = VerseUIImages.MoneyCurrencyAmount
+    var AmountOfRebirthItemsImage : texture = VerseUIImages.MoneyCurrencyAmount
 
     StringToMessage< localizes>(value:string) : message = "{value}"
 
